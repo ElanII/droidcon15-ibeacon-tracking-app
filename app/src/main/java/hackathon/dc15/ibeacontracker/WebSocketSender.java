@@ -3,6 +3,7 @@ package hackathon.dc15.ibeacontracker;
 import android.util.Log;
 
 import com.github.nkzawa.emitter.Emitter;
+import com.github.nkzawa.socketio.client.Ack;
 import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
 
@@ -39,35 +40,26 @@ public class WebSocketSender {
     }
 
     public void connect() {
-//        new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-                websocket.connect();
-//            }
-//        }).start();
+        websocket.connect();
+        Log.i("MainActivity", "after connect call");
     }
 
     public void disconnect() {
-//        new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-                if (websocket != null) {
-                    websocket.close();
-                }
-//            }
-//        }).start();
+        if (websocket != null) {
+            websocket.close();
+        }
     }
 
     public void send(final JSONObject data) {
-//        new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-                try {
-                    websocket.emit("new_loc", data);
-                } catch (Exception e) {
-                    Log.e("WebSocketSender", "failed sending websocket message");
+        try {
+            websocket.emit("new_loc", data, new Ack() {
+                @Override
+                public void call(Object... args) {
+                    Log.i("WebSocketSender", "received ack");
                 }
-//            }
-//        }).start();
+            });
+        } catch (Exception e) {
+            Log.e("WebSocketSender", "failed sending websocket message");
+        }
     }
 }
