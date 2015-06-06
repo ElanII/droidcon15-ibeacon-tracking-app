@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="beacon_uuids">
+        <item>f0018b9b-7509-4c31-a905-1a27d39c003c</item>
+    </string-array>
+
+</resources>

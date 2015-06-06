@@ -18,6 +18,8 @@ import org.json.JSONObject;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 public class MainActivity extends ActionBarActivity implements BeaconConsumer {
 
@@ -25,8 +27,8 @@ public class MainActivity extends ActionBarActivity implements BeaconConsumer {
 
     private WebSocketSender sender;
     private long nextSendTime = 0;
-
-    private String android_id;
+    private String androidDeviceId;
+    private Set<String> beaconUuids;
 
     private TextView textLastSend;
     private TextView textStrength;
@@ -46,11 +48,15 @@ public class MainActivity extends ActionBarActivity implements BeaconConsumer {
         TextView textDeviceId = (TextView) findViewById(R.id.textDeviceId);
         textStrength = (TextView) findViewById(R.id.textStrength);
 
-        android_id = Settings.Secure.getString(this.getContentResolver(),
+        androidDeviceId = Settings.Secure.getString(this.getContentResolver(),
                 Settings.Secure.ANDROID_ID);
-        textDeviceId.setText("Device id: " + android_id);
+        textDeviceId.setText("Device id: " + androidDeviceId);
 
         formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        beaconUuids = new HashSet<>();
+        for (String uuid : getResources().getStringArray(R.array.beacon_uuids)) {
+            beaconUuids.add(uuid);
+        }
 
         beaconManager.bind(this);
     }
@@ -88,8 +94,7 @@ public class MainActivity extends ActionBarActivity implements BeaconConsumer {
             @Override
             public void didRangeBeaconsInRegion(Collection<Beacon> beacons, Region region) {
                 for (Beacon beacon : beacons) {
-                    // TODO make configurable
-                    if (beacon.getId1().toString().contains("f0018b9b-7509-4c31-a905-1a27d39c003c")) {
+                    if (beaconUuids.contains(beacon.getId1().toString())) {
                         handleBeacon(beacon);
                     }
                 }
@@ -125,7 +130,7 @@ public class MainActivity extends ActionBarActivity implements BeaconConsumer {
             data.put("uuid", beacon.getId1().toString());
             data.put("strength", beacon.getRssi());
             data.put("distance", beacon.getDistance());
-            data.put("deviceid", android_id);
+            data.put("deviceid", androidDeviceId);
 
             sender.send(data);
         } catch (Exception e) {
