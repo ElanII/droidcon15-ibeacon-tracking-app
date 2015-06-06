@@ -2,6 +2,7 @@ package hackathon.dc15.ibeacontracker;
 
 import android.os.Bundle;
 import android.os.RemoteException;
+import android.provider.Settings;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.WindowManager;
@@ -22,11 +23,17 @@ public class MainActivity extends ActionBarActivity implements BeaconConsumer {
     private WebSocketSender sender;
     private long nextSendTime = 0;
 
+    private String android_id;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_main);
+
+        android_id = Settings.Secure.getString(this.getContentResolver(),
+                Settings.Secure.ANDROID_ID);
+
 
         beaconManager.bind(this);
 
@@ -94,6 +101,7 @@ public class MainActivity extends ActionBarActivity implements BeaconConsumer {
             data.put("uuid", beacon.getId1().toString());
             data.put("strength", beacon.getRssi());
             data.put("distance", beacon.getDistance());
+            data.put("deviceid", android_id);
 
             sender.send(data);
         } catch (Exception e) {
