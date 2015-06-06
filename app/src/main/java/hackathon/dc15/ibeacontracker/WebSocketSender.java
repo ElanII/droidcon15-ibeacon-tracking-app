@@ -32,6 +32,12 @@ public class WebSocketSender {
                 public void call(Object... args) {
                     Log.i("WebSocketSender", "websocket has been closed");
                 }
+            }).on(Socket.EVENT_ERROR, new Emitter.Listener() {
+                @Override
+                public void call(Object... args) {
+                    Log.w("WebSocketSender", "websocket error!");
+                    connect();
+                }
             });
         } catch (URISyntaxException e) {
             Log.e("WebSocketSender", "failed settig up websocket", e);
@@ -40,7 +46,6 @@ public class WebSocketSender {
 
     public void connect() {
         websocket.connect();
-        Log.i("WebSocketSender", "after connect call");
     }
 
     public void disconnect() {
