@@ -63,7 +63,9 @@ public class MainActivity extends ActionBarActivity implements BeaconConsumer {
             public void didRangeBeaconsInRegion(Collection<Beacon> beacons, Region region) {
                 if (beacons.size() > 0) {
                     Beacon beacon = beacons.iterator().next();
-                    if (beacon.getId1().toString().startsWith("f0018b9b")) {
+
+                    // TODO make configurable
+                    if (beacon.getId1().toString().contains("f0018b9b-7509-4c31-a905-1a27d39c003c")) {
                         Log.i("MainActivity", "Found beacon -> " + beacon.toString() + " is about " + beacon.getDistance() + " meters away.");
                         Log.i("MainActivity", "-> Strength " + beacon.getRssi());
                         Log.i("MainActivity", "-> TxPower " + beacon.getTxPower());
