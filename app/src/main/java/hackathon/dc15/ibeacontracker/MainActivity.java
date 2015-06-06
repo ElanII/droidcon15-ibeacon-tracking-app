@@ -29,7 +29,7 @@ public class MainActivity extends ActionBarActivity implements BeaconConsumer {
 
         beaconManager.bind(this);
 
-        sender = new WebSocketSender("ws://100.100.238.92:3000");
+        sender = new WebSocketSender("http://100.100.238.92:3000");
         sender.connect();
     }
 

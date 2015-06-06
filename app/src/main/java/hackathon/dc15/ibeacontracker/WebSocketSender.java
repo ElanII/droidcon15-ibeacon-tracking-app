@@ -1,54 +1,36 @@
 package hackathon.dc15.ibeacontracker;
 
-import android.os.Handler;
 import android.util.Log;
+
+import com.github.nkzawa.emitter.Emitter;
+import com.github.nkzawa.socketio.client.IO;
+import com.github.nkzawa.socketio.client.Socket;
 
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import de.roderick.weberknecht.WebSocket;
-import de.roderick.weberknecht.WebSocketEventHandler;
-import de.roderick.weberknecht.WebSocketMessage;
 
 public class WebSocketSender {
 
-    private WebSocket websocket;
-
-    private Handler backgroundHandler;
+    private Socket websocket;
 
     public WebSocketSender(String endpoint) {
-        Thread thread = new Thread();
-        backgroundHandler = new Handler();
 
         try {
             URI url = new URI(endpoint);
-            websocket = new WebSocket(url);
 
-            websocket.setEventHandler(new WebSocketEventHandler() {
-                public void onOpen() {
+            websocket = IO.socket(url);
+            websocket.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
+                @Override
+                public void call(Object... args) {
                     Log.i("MainActivity", "websocket is open");
                 }
-
-                public void onMessage(WebSocketMessage message) {
-                    Log.i("MainActivity", "websocket received message: " + message.toString());
-                }
-
+            }).on(Socket.EVENT_DISCONNECT, new Emitter.Listener() {
                 @Override
-                public void onError(IOException exception) {
-                    Log.e("MainActivity", "websocket error happened", exception);
-                }
-
-                public void onClose() {
+                public void call(Object... args) {
                     Log.i("MainActivity", "websocket has been closed");
-                }
-
-                public void onPing() {
-                }
-
-                public void onPong() {
                 }
             });
         } catch (URISyntaxException e) {
@@ -57,35 +39,35 @@ public class WebSocketSender {
     }
 
     public void connect() {
-        backgroundHandler.post(new Runnable() {
-            @Override
-            public void run() {
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
                 websocket.connect();
-            }
-        });
+//            }
+//        }).start();
     }
 
     public void disconnect() {
-        backgroundHandler.post(new Runnable() {
-            @Override
-            public void run() {
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
                 if (websocket != null) {
                     websocket.close();
                 }
-            }
-        });
+//            }
+//        }).start();
     }
 
     public void send(final JSONObject data) {
-        backgroundHandler.post(new Runnable() {
-            @Override
-            public void run() {
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
                 try {
-                    websocket.send(data.toString());
+                    websocket.emit("new_loc", data);
                 } catch (Exception e) {
                     Log.e("WebSocketSender", "failed sending websocket message");
                 }
-            }
-        });
+//            }
+//        }).start();
     }
 }
