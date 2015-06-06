@@ -50,7 +50,7 @@ public class MainActivity extends ActionBarActivity implements BeaconConsumer {
                 Settings.Secure.ANDROID_ID);
         textDeviceId.setText("Device id: " + android_id);
 
-        formatter = new SimpleDateFormat("yyyy-mm-dd HH:MM:ss");
+        formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
         beaconManager.bind(this);
     }
