@@ -4,70 +4,79 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.RemoteException;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
+import android.widget.EditText;
 
-public class MainActivity extends ActionBarActivity {
+import org.altbeacon.beacon.Beacon;
+import org.altbeacon.beacon.BeaconConsumer;
+import org.altbeacon.beacon.BeaconManager;
+import org.altbeacon.beacon.RangeNotifier;
+import org.altbeacon.beacon.Region;
 
-    private BeaconReceiver receiver;
+import java.util.Collection;
+
+public class MainActivity extends ActionBarActivity implements BeaconConsumer {
+
+    private BeaconManager beaconManager = BeaconManager.getInstanceForApplication(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_main);
+
+        beaconManager.bind(this);
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        Log.d("MainActivity", "onStart");
-
-        receiver = new BeaconReceiver();
-//        LocalBroadcastManager.getInstance(this).registerReceiver(receiver, intentFilter);
+    protected void onDestroy() {
+        super.onDestroy();
+        beaconManager.unbind(this);
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
-        Log.d("MainActivity", "onStop");
-
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(receiver);
+    protected void onPause() {
+        super.onPause();
+        if (beaconManager.isBound(this)) {
+            beaconManager.setBackgroundMode(true);
+        }
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
+    protected void onResume() {
+        super.onResume();
+        if (beaconManager.isBound(this))  {
+            beaconManager.setBackgroundMode(false);
+        }
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
+    public void onBeaconServiceConnect() {
+        beaconManager.setRangeNotifier(new RangeNotifier() {
+            @Override
+            public void didRangeBeaconsInRegion(Collection<Beacon> beacons, Region region) {
+                if (beacons.size() > 0) {
+                    Beacon beacon = beacons.iterator().next();
+                    if (beacon.getId1().toString().startsWith("f0018b9b")) {
+                        Log.i("MainActivity", "Found beacon -> " + beacon.toString() + " is about " + beacon.getDistance() + " meters away.");
+                        Log.i("MainActivity", "-> Strength " + beacon.getRssi());
+                        Log.i("MainActivity", "-> TxPower " + beacon.getTxPower());
+                    }
+                }
+            }
+        });
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        try {
+            beaconManager.startRangingBeaconsInRegion(new Region("myRangingUniqueId", null, null, null));
+        } catch (RemoteException e) {
+            e.printStackTrace();
         }
 
-        return super.onOptionsItemSelected(item);
-    }
-
-    private class BeaconReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            Log.i("MainActivity", "onReceive beacon data = " + action);
-
-        }
     }
 }
