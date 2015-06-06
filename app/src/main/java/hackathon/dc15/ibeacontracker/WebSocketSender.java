@@ -18,7 +18,6 @@ public class WebSocketSender {
     private Socket websocket;
 
     public WebSocketSender(String endpoint) {
-
         try {
             URI url = new URI(endpoint);
 
@@ -26,27 +25,27 @@ public class WebSocketSender {
             websocket.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
                 @Override
                 public void call(Object... args) {
-                    Log.i("MainActivity", "websocket is open");
+                    Log.i("WebSocketSender", "websocket is open");
                 }
             }).on(Socket.EVENT_DISCONNECT, new Emitter.Listener() {
                 @Override
                 public void call(Object... args) {
-                    Log.i("MainActivity", "websocket has been closed");
+                    Log.i("WebSocketSender", "websocket has been closed");
                 }
             });
         } catch (URISyntaxException e) {
-            Log.e("MainActivity", "failed settig up websocket", e);
+            Log.e("WebSocketSender", "failed settig up websocket", e);
         }
     }
 
     public void connect() {
         websocket.connect();
-        Log.i("MainActivity", "after connect call");
+        Log.i("WebSocketSender", "after connect call");
     }
 
     public void disconnect() {
         if (websocket != null) {
-            websocket.close();
+            websocket.disconnect();
         }
     }
 

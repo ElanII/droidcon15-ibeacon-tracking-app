@@ -32,6 +32,10 @@ public class MainActivity extends ActionBarActivity implements BeaconConsumer {
     private TextView textStrength;
     private DateFormat formatter;
 
+    public MainActivity() {
+        sender = new WebSocketSender("http://100.100.238.92:3000");
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,7 +79,6 @@ public class MainActivity extends ActionBarActivity implements BeaconConsumer {
             beaconManager.setBackgroundMode(false);
         }
 
-        sender = new WebSocketSender("http://100.100.238.92:3000");
         sender.connect();
     }
 
@@ -102,13 +105,11 @@ public class MainActivity extends ActionBarActivity implements BeaconConsumer {
 
     private void handleBeacon(final Beacon beacon) {
         if (System.currentTimeMillis() < nextSendTime) {
-            Log.i("MainActivity", "-> DISCARDING");
             return;
         }
         nextSendTime = System.currentTimeMillis() + 3000;
 
         Log.i("MainActivity", "Found beacon -> " + beacon.toString() + " is about " + beacon.getDistance() + " meters away.");
-        Log.i("MainActivity", "-> Strength " + beacon.getRssi());
 
         runOnUiThread(new Runnable() {
             @Override
