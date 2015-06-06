@@ -40,7 +40,7 @@ public class WebSocketSender {
                 }
             });
         } catch (URISyntaxException e) {
-            Log.e("WebSocketSender", "failed settig up websocket", e);
+            Log.e("WebSocketSender", "failed setting up websocket", e);
         }
     }
 
