@@ -20,6 +20,9 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:appcompat-v7:22.1.1'
+    compile project(':beaconinside-sdk-playservices-1.2.2')
+
+    compile 'com.google.android.gms:play-services-location:6.5.87'
 }

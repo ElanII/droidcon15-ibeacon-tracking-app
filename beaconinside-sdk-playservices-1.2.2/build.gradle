@@ -1,0 +1,2 @@
+configurations.create("default")
+artifacts.add("default", file('beaconinside-sdk-playservices-1.2.2.aar'))

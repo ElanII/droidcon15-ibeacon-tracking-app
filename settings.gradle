@@ -1,1 +1,2 @@
 include ':app'
+include ':beaconinside-sdk-playservices-1.2.2'
