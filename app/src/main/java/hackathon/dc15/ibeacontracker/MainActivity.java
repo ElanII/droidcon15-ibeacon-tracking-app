@@ -3,17 +3,13 @@ package hackathon.dc15.ibeacontracker;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
+import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBarActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
-
-import com.beaconinside.androidsdk.BeaconService;
-
 
 public class MainActivity extends ActionBarActivity {
 
@@ -31,14 +27,8 @@ public class MainActivity extends ActionBarActivity {
         super.onStart();
         Log.d("MainActivity", "onStart");
 
-        BeaconService.init(this, null);
-
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(BeaconService.INTENT_BEACON_REGION_ENTER);
-        intentFilter.addAction(BeaconService.INTENT_BEACON_REGION_EXIT);
-
         receiver = new BeaconReceiver();
-        LocalBroadcastManager.getInstance(this).registerReceiver(receiver, intentFilter);
+//        LocalBroadcastManager.getInstance(this).registerReceiver(receiver, intentFilter);
     }
 
     @Override
@@ -46,7 +36,6 @@ public class MainActivity extends ActionBarActivity {
         super.onStop();
         Log.d("MainActivity", "onStop");
 
-        BeaconService.terminate(this);
         LocalBroadcastManager.getInstance(this).unregisterReceiver(receiver);
     }
 
@@ -79,11 +68,6 @@ public class MainActivity extends ActionBarActivity {
             String action = intent.getAction();
             Log.i("MainActivity", "onReceive beacon data = " + action);
 
-            if (BeaconService.INTENT_BEACON_REGION_ENTER.equals(action)) {
-                // do something
-            } else if (BeaconService.INTENT_BEACON_REGION_EXIT.equals(action)) {
-                // do something
-            }
         }
     }
 }
