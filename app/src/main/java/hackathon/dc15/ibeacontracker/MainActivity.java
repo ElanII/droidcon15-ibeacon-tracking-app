@@ -11,12 +11,16 @@ import org.altbeacon.beacon.BeaconConsumer;
 import org.altbeacon.beacon.BeaconManager;
 import org.altbeacon.beacon.RangeNotifier;
 import org.altbeacon.beacon.Region;
+import org.json.JSONObject;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
 
 import de.roderick.weberknecht.WebSocket;
+import de.roderick.weberknecht.WebSocketEventHandler;
+import de.roderick.weberknecht.WebSocketMessage;
 
 public class MainActivity extends ActionBarActivity implements BeaconConsumer {
 
@@ -33,29 +37,29 @@ public class MainActivity extends ActionBarActivity implements BeaconConsumer {
 
         try {
             URI url = new URI("ws://100.100.238.92:3000");
-//            websocket = new WebSocket(url);
-//
-//            websocket.setEventHandler(new WebSocketEventHandler() {
-//                public void onOpen() {
-//                    Log.i("MainActivity", "websocket is open");
-//                }
-//
-//                public void onMessage(WebSocketMessage message)  {
-//                    Log.i("MainActivity", "websocket received message: " + message.toString());
-//                }
-//
-//                @Override
-//                public void onError(IOException exception) {
-//                    Log.e("MainActivity", "websocket error happened", exception);
-//                }
-//
-//                public void onClose() {
-//                    Log.i("MainActivity", "websocket has been closed");
-//                }
-//
-//                public void onPing() {}
-//                public void onPong() {}
-//            });
+            websocket = new WebSocket(url);
+
+            websocket.setEventHandler(new WebSocketEventHandler() {
+                public void onOpen() {
+                    Log.i("MainActivity", "websocket is open");
+                }
+
+                public void onMessage(WebSocketMessage message)  {
+                    Log.i("MainActivity", "websocket received message: " + message.toString());
+                }
+
+                @Override
+                public void onError(IOException exception) {
+                    Log.e("MainActivity", "websocket error happened", exception);
+                }
+
+                public void onClose() {
+                    Log.i("MainActivity", "websocket has been closed");
+                }
+
+                public void onPing() {}
+                public void onPong() {}
+            });
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
@@ -114,6 +118,15 @@ public class MainActivity extends ActionBarActivity implements BeaconConsumer {
         Log.i("MainActivity", "-> Strength " + beacon.getRssi());
         Log.i("MainActivity", "-> TxPower " + beacon.getTxPower());
 
-//        websocket.send("hello world");
+        try {
+            JSONObject data = new JSONObject();
+            data.put("uuid", beacon.getId1().toString());
+            data.put("strength", beacon.getRssi());
+            data.put("distance", beacon.getDistance());
+
+            websocket.send(data.toString());
+        } catch (Exception e) {
+            Log.e("MainActivity", "failed sending websocket message");
+        }
     }
 }
