@@ -20,6 +20,7 @@ public class MainActivity extends ActionBarActivity implements BeaconConsumer {
     private BeaconManager beaconManager = BeaconManager.getInstanceForApplication(this);
 
     private WebSocketSender sender;
+    private long nextSendTime = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,16 +76,21 @@ public class MainActivity extends ActionBarActivity implements BeaconConsumer {
         } catch (RemoteException e) {
             e.printStackTrace();
         }
-
     }
 
     private void handleBeacon(Beacon beacon) {
+        if (System.currentTimeMillis() < nextSendTime) {
+            Log.i("MainActivity", "-> DISCARDING");
+            return;
+        }
+        nextSendTime = System.currentTimeMillis() + 3000;
+
         Log.i("MainActivity", "Found beacon -> " + beacon.toString() + " is about " + beacon.getDistance() + " meters away.");
         Log.i("MainActivity", "-> Strength " + beacon.getRssi());
-        Log.i("MainActivity", "-> TxPower " + beacon.getTxPower());
 
         try {
             JSONObject data = new JSONObject();
+            data.put("timestamp", System.currentTimeMillis());
             data.put("uuid", beacon.getId1().toString());
             data.put("strength", beacon.getRssi());
             data.put("distance", beacon.getDistance());
